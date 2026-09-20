@@ -4,4 +4,5 @@ export interface Task {
     title: string;
     status: TaskStatus;
     createdAt: Date;
+    completed: boolean;
 }
