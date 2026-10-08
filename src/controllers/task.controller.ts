@@ -1,52 +1,26 @@
-import type { NextFunction, Request, Response } from 'express';
-// import { updateTaskStatus } from '../services/task.service.js';
+import type { Request, Response } from 'express';
 import {
     completeTask,
     createTask,
     deleteTask,
     findTaskById,
-    listTasks,
-    updateTaskStatus,
+    listTasks
 } from '../services/task.service.js';
-export const getTasks = (_req: Request, res: Response): void => {
-    res.status(200).json({ data: listTasks() });
+export const getTasks = async (_req: Request, res: Response): Promise<void> => {
+    res.status(200).json({ data: await listTasks() });
 };
-export const getTask = (
-    _req: Request,
-    res: Response
-): void => {
-    res.status(200).json({ data: findTaskById(res.locals.taskId) });
+export const getTask = async (_req: Request, res: Response): Promise<void> => {
+    res.status(200).json({ data: await findTaskById(res.locals.taskId) });
 };
-export const postTask = (
-    _req: Request,
-    res: Response
-): void => {
-    const task = createTask(res.locals.taskTitle);
+export const postTask = async (_req: Request, res: Response): Promise<void> => {
+    const task = await createTask(res.locals.taskTitle, res.locals.taskDescription);
     res.status(201).json({ data: task });
 };
-export const patchTaskComplete = (
-    _req: Request,
-    res: Response
-): void => {
-    const task = completeTask(res.locals.taskId);
+export const patchTaskComplete = async (_req: Request, res: Response): Promise<void> => {
+    const task = await completeTask(res.locals.taskId);
     res.status(200).json({ data: task });
 };
-export const removeTask = (
-    _req: Request,
-    res: Response
-): void => {
-    deleteTask(res.locals.taskId);
+export const removeTask = async (_req: Request, res: Response): Promise<void> => {
+    await deleteTask(res.locals.taskId);
     res.status(204).send();
-};
-
-export const patchTaskTitle = (req: Request, res: Response, next: NextFunction): void => {
-
-};
-
-export const patchTaskStatus = (
-    _req: Request,
-    res: Response
-): void => {
-    const task = updateTaskStatus(res.locals.taskId, res.locals.taskCompleted);
-    res.status(200).json({ data: task });
 };

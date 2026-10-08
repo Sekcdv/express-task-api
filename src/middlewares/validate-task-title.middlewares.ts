@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../errors/app-error.js';
+
 export const validateTaskTitle = (
     req: Request,
     res: Response,
@@ -24,6 +25,31 @@ export const validateTaskTitle = (
         ));
         return;
     }
+
+    const description: unknown = req.body?.description;
+    if (description !== undefined) {
+        if (typeof description !== 'string') {
+            next(new AppError(
+                'La solicitud contiene datos inválidos.',
+                422,
+                'VALIDATION_ERROR',
+                [{ field: 'description', message: 'Debe ser texto.' }]
+            ));
+            return;
+        }
+        if (description.trim().length > 300) {
+            next(new AppError(
+                'La solicitud contiene datos inválidos.',
+                422,
+                'VALIDATION_ERROR',
+                [{ field: 'description', message: 'No debe superar 300 caracteres.' }]
+            ));
+            return;
+        }
+        const trimmedDescription = description.trim();
+        res.locals.taskDescription = trimmedDescription || undefined;
+    }
+
     res.locals.taskTitle = title.trim();
     next();
 };
