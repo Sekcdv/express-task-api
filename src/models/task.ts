@@ -1,27 +1,30 @@
 import { Schema, model } from 'mongoose';
-
-
-
 export const TASK_STATUSES = ['pending', 'completed'] as const;
+export const TASK_PRIORITIES = ['low', 'medium', 'high'] as const;
+export type TaskPriority = (typeof TASK_PRIORITIES)[number];
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 export interface TaskPersistence {
     title: string;
-    description?: string;
     status: TaskStatus;
+    priority: TaskPriority;   // nuevo
     createdAt: Date;
     updatedAt: Date;
 }
+
 export interface Task {
     id: string;
     title: string;
-    description?: string;
     status: TaskStatus;
+    priority: TaskPriority;   // nuevo
     createdAt: Date;
     updatedAt: Date;
 }
 
-
-
+export interface TaskUpdate {
+    title?: string;
+    status?: TaskStatus;
+    priority?: TaskPriority;  // nuevo
+}
 const taskSchema = new Schema<TaskPersistence>(
     {
         title: {
@@ -30,23 +33,20 @@ const taskSchema = new Schema<TaskPersistence>(
             trim: true,
             maxlength: [120, 'El título no debe superar 120 caracteres.']
         },
-        description: {
+        priority: {
             type: String,
-            trim: true,
-            maxlength: [300, 'La descripción no debe superar 300 caracteres.']
+            enum: TASK_PRIORITIES,
+            default: 'medium'
         },
         status: {
             type: String,
             enum: TASK_STATUSES,
             default: 'pending'
         }
-        
     },
     {
         timestamps: true,
         versionKey: false
     }
 );
-
-
 export const TaskModel = model<TaskPersistence>('Task', taskSchema);
