@@ -3,6 +3,27 @@ export const TASK_STATUSES = ['pending', 'completed'] as const;
 export const TASK_PRIORITIES = ['low', 'medium', 'high'] as const;
 export type TaskPriority = (typeof TASK_PRIORITIES)[number];
 export type TaskStatus = (typeof TASK_STATUSES)[number];
+export type TaskSortField = 'title' | 'status' | 'createdAt' | 'updatedAt';
+export type TaskSortOrder = 'asc' | 'desc';
+
+export interface TaskListQuery {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: TaskStatus;
+    sortBy: TaskSortField;
+    order: TaskSortOrder;
+}
+
+export interface TaskPageMeta {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+}
+
 export interface TaskPersistence {
     title: string;
     status: TaskStatus;
@@ -25,6 +46,12 @@ export interface TaskUpdate {
     status?: TaskStatus;
     priority?: TaskPriority;  // nuevo
 }
+
+export interface TaskListResult {
+    data: Task[];
+    meta: TaskPageMeta;
+}
+
 const taskSchema = new Schema<TaskPersistence>(
     {
         title: {

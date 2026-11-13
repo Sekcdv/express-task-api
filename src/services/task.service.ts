@@ -1,9 +1,15 @@
-import mongoose, { type HydratedDocument } from 'mongoose';
+import mongoose, {
+    type FilterQuery,
+    type HydratedDocument
+} from 'mongoose';
 import { AppError } from '../errors/app-error.js';
 import {
     TaskModel,
     type Task,
+    type TaskListQuery,
+    type TaskListResult,
     type TaskPersistence,
+    type TaskPriority,
     type TaskUpdate
 } from '../models/task.js';
 const toTask = (document: HydratedDocument<TaskPersistence>): Task => ({
@@ -34,10 +40,48 @@ const mapPersistenceError = (error: unknown): AppError => {
         'DATABASE_UNAVAILABLE'
     );
 };
-export const listTasks = async (): Promise<Task[]> => {
+export const listTasks = async (
+    query: TaskListQuery
+): Promise<TaskListResult> => {
     try {
-        const documents = await TaskModel.find().sort({ createdAt: 1 });
-        return documents.map(toTask);
+        const filter: FilterQuery<TaskPersistence> = {};
+        if (query.status) {
+            filter.status = query.status;
+        }
+        if (query.search) {
+            const escapedSearch = query.search.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                '\\$&'
+            );
+            filter.title = { $regex: escapedSearch, $options: 'i' };
+        }
+
+        const direction = query.order === 'asc' ? 1 : -1;
+        const sort: Record<string, 1 | -1> = {
+            [query.sortBy]: direction,
+            _id: 1
+        };
+        const skip = (query.page - 1) * query.limit;
+        const [documents, total] = await Promise.all([
+            TaskModel.find(filter)
+                .sort(sort)
+                .skip(skip)
+                .limit(query.limit),
+            TaskModel.countDocuments(filter)
+        ]);
+        const totalPages = Math.ceil(total / query.limit);
+
+        return {
+            data: documents.map(toTask),
+            meta: {
+                page: query.page,
+                limit: query.limit,
+                total,
+                totalPages,
+                hasNextPage: query.page < totalPages,
+                hasPreviousPage: query.page > 1 && query.page <= totalPages
+            }
+        };
     } catch (error: unknown) {
         throw mapPersistenceError(error);
     }

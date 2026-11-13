@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import dns from 'node:dns';
 import type { Server } from 'node:http';
-import { app } from './app.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
 import { loadEnvironment } from './config/env.js';
 
@@ -43,12 +42,24 @@ const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
 };
 
 const startServer = async (): Promise<void> => {
+    let env: ReturnType<typeof loadEnvironment>;
     try {
-        const env = loadEnvironment();
+        env = loadEnvironment();
+    } catch (error: unknown) {
+        const message = error instanceof Error
+            ? error.message
+            : 'Error de configuración desconocido.';
+        console.error(`Configuración de inicio inválida: ${message}`);
+        process.exitCode = 1;
+        return;
+    }
+
+    try {
         await connectDatabase({
             uri: env.mongodbUri,
             dbName: env.mongodbDbName
         });
+        const { app } = await import('./app.js');
         httpServer = app.listen(env.port, () => {
             console.log(`API disponible en http://localhost:${env.port}`);
         });
@@ -61,8 +72,7 @@ const startServer = async (): Promise<void> => {
         });
     } catch {
         console.error(
-            'No fue posible iniciar la API. Revise MONGODB_URI, ' +
-            'el usuario y la lista de acceso de red.'
+            'No fue posible iniciar la API. Revise MongoDB y la configuración.'
         );
         process.exitCode = 1;
     }
