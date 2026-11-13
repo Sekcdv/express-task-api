@@ -8,15 +8,17 @@ import {
     updateTask
 } from '../services/task.service.js';
 export const getTasks = async (_req: Request, res: Response): Promise<void> => {
-    res.status(200).json(await listTasks(res.locals.taskListQuery));
+    res.status(200).json(await listTasks(res.locals.taskQuery));
 };
 export const getTask = async (_req: Request, res: Response): Promise<void> => {
     res.status(200).json({ data: await findTaskById(res.locals.taskId) });
 };
 export const postTask = async (_req: Request, res: Response): Promise<void> => {
-    const task = await createTask(res.locals.taskTitle, res.locals.taskPriority);
+    const task = await createTask(
+        res.locals.taskTitle,
+        res.locals.taskPriority
+    );
     res.status(201).json({ data: task });
-    console.log('priority recibido:', res.locals.taskPriority);
 };
 export const patchTaskComplete = async (_req: Request, res: Response): Promise<void> => {
     const task = await completeTask(res.locals.taskId);

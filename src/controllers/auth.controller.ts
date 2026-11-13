@@ -16,8 +16,8 @@ export const postRegister = async (
         ));
         return;
     }
-    const user = await registerUser(input);
-    res.status(201).json({ data: { user } });
+    const result = await registerUser(input);
+    res.status(201).json({ data: result });
 };
 
 export const postLogin = async (
