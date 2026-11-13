@@ -1,10 +1,7 @@
-import { env } from '../config/env.js';
 import { connectDatabase, disconnectDatabase } from '../config/database.js';
+import { loadEnvironment } from '../config/env.js';
 import { isUserRole } from '../models/user.js';
 import { setUserRoleByEmail } from '../repositories/user.repository.js';
-import dns from 'node:dns';
-
-dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const run = async (): Promise<void> => {
     const email = process.argv[2]?.trim().toLowerCase();
@@ -12,14 +9,19 @@ const run = async (): Promise<void> => {
     if (!email || !role || !isUserRole(role)) {
         throw new Error('Uso: pnpm role:set <correo> <user|admin>');
     }
+
+    const env = loadEnvironment();
     await connectDatabase({
-        uri: env.MONGODB_URI,
-        dbName: env.MONGODB_DB_NAME
+        uri: env.mongodbUri,
+        dbName: env.mongodbDbName
     });
     const user = await setUserRoleByEmail(email, role);
-    if (!user) throw new Error(`No existe un usuario con el correo ${email}.`);
+    if (!user) {
+        throw new Error(`No existe un usuario con el correo ${email}.`);
+    }
     console.log(`Rol actualizado: ${user.email} ahora es ${user.role}.`);
 };
+
 try {
     await run();
 } catch (error: unknown) {
@@ -29,4 +31,3 @@ try {
 } finally {
     await disconnectDatabase();
 }
-

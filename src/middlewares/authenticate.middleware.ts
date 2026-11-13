@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../errors/app-error.js';
 import { verifyAccessToken } from '../services/token.service.js';
+
 const getBearerToken = (authorization: string | undefined): string => {
     if (!authorization) {
         throw new AppError(
@@ -9,10 +10,15 @@ const getBearerToken = (authorization: string | undefined): string => {
             'AUTHENTICATION_REQUIRED'
         );
     }
+
     const parts = authorization.trim().split(/\s+/);
     const scheme = parts[0];
     const token = parts[1];
-    if (parts.length !== 2 || scheme?.toLowerCase() !== 'bearer' || !token) {
+    if (
+        parts.length !== 2
+        || scheme?.toLowerCase() !== 'bearer'
+        || !token
+    ) {
         throw new AppError(
             'El encabezado Authorization debe usar el formato Bearer <token>.',
             401,
@@ -21,6 +27,7 @@ const getBearerToken = (authorization: string | undefined): string => {
     }
     return token;
 };
+
 export const authenticate = async (
     req: Request,
     res: Response,

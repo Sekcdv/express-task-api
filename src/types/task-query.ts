@@ -18,6 +18,8 @@ export interface TaskListQuery {
     limit: number;
     status?: TaskStatus;
     search?: string;
+    createdFrom?: Date;
+    createdTo?: Date;
     sortBy: TaskSortField;
     order: TaskSortOrder;
 }
@@ -32,15 +34,4 @@ export interface TaskPaginationMeta {
 export interface TaskListResult {
     data: Task[];
     meta: TaskPaginationMeta;
-}
-
-export interface TaskListQuery {
-  page: number;
-  limit: number;
-  status?: TaskStatus;
-  search?: string;
-  createdFrom?: Date;
-  createdTo?: Date;
-  sortBy: TaskSortField;
-  order: TaskSortOrder;
 }

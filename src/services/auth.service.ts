@@ -1,4 +1,4 @@
-import { env } from '../config/env.js';
+import { loadEnvironment } from '../config/env.js';
 import { AppError } from '../errors/app-error.js';
 import type { User } from '../models/user.js';
 import {
@@ -13,7 +13,7 @@ import type {
     RegisterResult
 } from '../types/auth.js';
 import { hashPassword, verifyPassword } from './password.service.js';
-import { createAccessToken } from './token.service.js';
+import { signAccessToken } from './token.service.js';
 const DUMMY_PASSWORD_HASH =
     '$2b$12$ryC/a3t1mI7fqF6j4w3Z.OpHQerUsIQUPQYXvd4WSgCRuikv6IF82';
 const toUser = (document: UserDocument): User => ({
@@ -56,8 +56,11 @@ export const loginUser = async (input: LoginInput): Promise<LoginResult> => {
     const user = toUser(document);
     return {
         user,
-        accessToken: await createAccessToken(user),
+        accessToken: await signAccessToken({
+            userId: user.id,
+            role: user.role
+        }),
         tokenType: 'Bearer',
-        expiresIn: env.JWT_EXPIRES_IN
+        expiresIn: loadEnvironment().jwtExpiresIn
     };
 };

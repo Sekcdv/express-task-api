@@ -1,6 +1,7 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { AppError } from '../errors/app-error.js';
 import type { UserRole } from '../models/user.js';
+
 export const requireRole = (...allowedRoles: UserRole[]): RequestHandler => (
     _req: Request,
     res: Response,

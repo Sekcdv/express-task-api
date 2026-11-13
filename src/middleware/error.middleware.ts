@@ -7,6 +7,13 @@ const isInvalidJson = (error: unknown): boolean => {
         && typeof error.status === 'number'
         && error.status === 400;
 };
+const isPayloadTooLarge = (error: unknown): boolean => {
+    if (typeof error !== 'object' || error === null) return false;
+    return 'status' in error
+        && error.status === 413
+        && 'type' in error
+        && error.type === 'entity.too.large';
+};
 const sendError = (
     res: Response,
     status: number,
@@ -39,6 +46,14 @@ export const errorHandler = (
         sendError(res, 400, {
             code: 'INVALID_JSON',
             message: 'El cuerpo contiene JSON inválido.',
+            requestId
+        });
+        return;
+    }
+    if (isPayloadTooLarge(error)) {
+        sendError(res, 413, {
+            code: 'PAYLOAD_TOO_LARGE',
+            message: 'El cuerpo de la solicitud supera el límite permitido.',
             requestId
         });
         return;

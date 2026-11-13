@@ -64,6 +64,9 @@ const validateConfirmPassword = (
     body: Record<string, unknown>,
     issues: FieldIssue[]
 ): void => {
+    if (body.confirmPassword === undefined) {
+        return;
+    }
     if (typeof body.confirmPassword !== 'string' || !body.confirmPassword) {
         issues.push({ field: 'confirmPassword', message: 'Debe ser texto no vacío.' });
         return;
@@ -99,7 +102,6 @@ export const validateRegister = (
         return;
     }
 
-    // CAMBIO 1: se permite confirmPassword en el contrato HTTP
     validateAllowedFields(
         body,
         new Set(['name', 'email', 'password', 'confirmPassword']),
@@ -119,13 +121,18 @@ export const validateRegister = (
     const email = readEmail(body, issues);
     const password = readPassword(body, issues, true);
 
-    // CAMBIO 2: se exige y se compara la confirmación
     validateConfirmPassword(body, issues);
 
     if (rejectInvalidInput(issues, next)) return;
-
-    // confirmPassword NO se copia aquí: se descarta en la frontera HTTP
-    res.locals.registerInput = { name, email, password } as RegisterInput;
+    if (!name || !email || !password) {
+        next(new AppError(
+            'Los datos de autenticación no son válidos.',
+            422,
+            'AUTH_VALIDATION_ERROR'
+        ));
+        return;
+    }
+    res.locals.registerInput = { name, email, password } satisfies RegisterInput;
     next();
 };
 export const validateLogin = (
@@ -148,6 +155,14 @@ export const validateLogin = (
     const email = readEmail(body, issues);
     const password = readPassword(body, issues, false);
     if (rejectInvalidInput(issues, next)) return;
-    res.locals.loginInput = { email, password } as LoginInput;
+    if (!email || !password) {
+        next(new AppError(
+            'Los datos de autenticación no son válidos.',
+            422,
+            'AUTH_VALIDATION_ERROR'
+        ));
+        return;
+    }
+    res.locals.loginInput = { email, password } satisfies LoginInput;
     next();
 };

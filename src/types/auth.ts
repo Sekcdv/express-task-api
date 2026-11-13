@@ -1,4 +1,4 @@
-import type { User, UserRole } from '../models/user.ts';
+import type { User, UserRole } from '../models/user.js';
 export const MIN_PASSWORD_CHARACTERS = 15;
 export const MAX_PASSWORD_BYTES = 72;
 export interface RegisterInput {

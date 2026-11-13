@@ -5,7 +5,8 @@
 		"dev": "tsx watch src/server.ts",
 		"check": "tsc --noEmit",
 		"build": "tsc",
-		"start": "node dist/server.js"
+		"start": "node dist/server.js",
+		"role:set": "tsx src/scripts/set-user-role.ts"
 	},
 	"dependencies": {
 		"bcryptjs": "^3.0.3",

@@ -7,6 +7,7 @@ import { AppError } from '../errors/app-error.js';
 import {
     TaskModel,
     type TaskPersistence,
+    type TaskPriority,
     type TaskUpdate
 } from '../models/task.js';
 import type { TaskListQuery } from '../types/task-query.js';
@@ -85,9 +86,14 @@ export const findTaskDocumentById = async (
     id: string
 ): Promise<TaskDocument | null> => execute(async () => TaskModel.findById(id));
 export const createTaskDocument = async (
-    title: string
+    title: string,
+    priority?: TaskPriority
 ): Promise<TaskDocument> => execute(async () =>
-    TaskModel.create({ title, status: 'pending' })
+    TaskModel.create({
+        title,
+        status: 'pending',
+        ...(priority ? { priority } : {})
+    })
 );
 export const updateTaskDocument = async (
     id: string,

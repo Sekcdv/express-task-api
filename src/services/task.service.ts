@@ -3,6 +3,7 @@ import { AppError } from '../errors/app-error.js';
 import {
     type Task,
     type TaskPersistence,
+    type TaskPriority,
     type TaskUpdate
 } from '../models/task.js';
 import {
@@ -48,8 +49,11 @@ export const findTaskById = async (id: string): Promise<Task> => {
     }
     return toTask(document);
 };
-export const createTask = async (title: string): Promise<Task> => {
-    const document = await createTaskDocument(title);
+export const createTask = async (
+    title: string,
+    priority?: TaskPriority
+): Promise<Task> => {
+    const document = await createTaskDocument(title, priority);
     return toTask(document);
 };
 export const updateTask = async (

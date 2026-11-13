@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../errors/app-error.js';
-// import type { FieldIssue } from '../types/api-error.js';
 import { TASK_STATUSES, type TaskStatus } from '../models/task.js';
 import {
     DEFAULT_TASK_LIMIT,
@@ -14,7 +13,7 @@ import {
     type TaskSortField,
     type TaskSortOrder
 } from '../types/task-query.js';
-import { FieldIssue } from '../types/api-terror.js';
+import type { FieldIssue } from '../types/api-terror.js';
 
 const ALLOWED_QUERY_FIELDS = new Set([
     'page',
@@ -126,7 +125,7 @@ export const validateTaskQuery = (
             issues.push({ field, message: 'El parámetro no está permitido.' });
         }
     }
-     const rawPage = readString(query, 'page', issues);
+    const rawPage = readString(query, 'page', issues);
     const rawLimit = readString(query, 'limit', issues);
     const rawStatus = readString(query, 'status', issues);
     const rawSearch = readString(query, 'search', issues);
@@ -134,7 +133,7 @@ export const validateTaskQuery = (
     const rawCreatedTo = readString(query, 'createdTo', issues);
     const rawSortBy = readString(query, 'sortBy', issues);
     const rawOrder = readString(query, 'order', issues);
-    
+
     const page = parsePositiveInteger(
         rawPage,
         'page',
@@ -214,5 +213,3 @@ export const validateTaskQuery = (
     res.locals.taskQuery = taskQuery;
     next();
 };
-
-
