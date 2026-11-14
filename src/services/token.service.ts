@@ -4,7 +4,7 @@ import { AppError } from '../errors/app-error.js';
 import { isUserRole } from '../models/user.js';
 import type { AccessTokenSubject } from '../types/auth.js';
 
-export const signAccessToken = async (
+export const createAccessToken = async (
     subject: AccessTokenSubject
 ): Promise<string> => {
     const env = loadEnvironment();
@@ -17,6 +17,8 @@ export const signAccessToken = async (
         .setExpirationTime(env.jwtExpiresIn)
         .sign(new TextEncoder().encode(env.jwtSecret));
 };
+
+
 
 export const verifyAccessToken = async (
     token: string
