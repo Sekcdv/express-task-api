@@ -1,28 +1,44 @@
 {
+	"name": "task-api-express",
+	"version": "1.0.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "tsx watch src/server.ts",
-		"check": "tsc --noEmit",
+		"check": "tsc --noEmit && tsc -p tsconfig.json --noEmit",
 		"build": "tsc",
 		"start": "node dist/server.js",
-		"role:set": "tsx src/scripts/set-user-role.ts"
+		"role:set": "tsx src/scripts/set-user-role.ts",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"client:dev": "pnpm --dir client dev",
+		"client:check": "pnpm --dir client check",
+		"client:build": "pnpm --dir client build",
+		"verify": "pnpm check && pnpm test && pnpm build && pnpm client:check && pnpm client:build"
 	},
 	"dependencies": {
-		"bcryptjs": "^3.0.3",
-		"cors": "^2.8.6",
-		"dotenv": "^17.4.2",
-		"express": "^5.2.1",
-		"express-rate-limit": "^8.7.4",
-		"helmet": "^8.3.0",
-		"jose": "^6.2.14",
-		"mongoose": "^8.24.4"
+		"bcryptjs": "3.0.3",
+		"cors": "2.8.6",
+		"dotenv": "17.2.2",
+		"express": "5.1.0",
+		"express-rate-limit": "8.7.1",
+		"helmet": "8.3.0",
+		"jose": "6.2.12",
+		"mongoose": "8.24.4",
+		"swagger-ui-express": "5.0.1"
 	},
 	"devDependencies": {
-		"@types/cors": "^2.8.19",
-		"@types/express": "^5.0.6",
-		"@types/node": "^22.20.2",
-		"tsx": "^4.23.13",
-		"typescript": "^7.0.2"
+		"@types/cors": "2.8.19",
+		"@types/express": "5.0.3",
+		"@types/node": "24.3.1",
+		"@types/supertest": "7.2.1",
+		"@types/swagger-ui-express": "4.1.8",
+		"supertest": "7.3.1",
+		"tsx": "4.20.5",
+		"typescript": "5.9.2",
+		"vitest": "5.0.4"
+	},
+	"engines": {
+		"node": ">=20.19.0"
 	}
 }

@@ -1,2 +1,6 @@
+packages:
+  - .
+  - client
 allowBuilds:
-  esbuild: false
+  '@scarf/scarf': false
+  esbuild: true

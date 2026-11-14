@@ -1,39 +1,31 @@
-import type { NextFunction, Request, Response } from 'express';
-import { AppError } from '../errors/app-error.js';
-import { loginUser, registerUser } from '../services/auth.service.js';
-
-export const postRegister = async (
-    _req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
+import type { Request, Response } from 'express';
+import {
+    getAuthenticatedUser,
+    loginUser,
+    registerUser
+} from '../services/auth.service.js';
+export const postRegister = async (_req: Request, res: Response): Promise<void> => {
     const input = res.locals.registerInput;
     if (!input) {
-        next(new AppError(
-            'No se validaron los datos de registro.',
-            500,
-            'INTERNAL_ERROR'
-        ));
-        return;
+        throw new Error('La ruta /register requiere el middleware validateRegister.');
     }
-    const result = await registerUser(input);
-    res.status(201).json({ data: result });
-};
 
-export const postLogin = async (
-    _req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
+    res.status(201).json({ data: await registerUser(input) });
+};
+export const postLogin = async (_req: Request, res: Response): Promise<void> => {
     const input = res.locals.loginInput;
     if (!input) {
-        next(new AppError(
-            'No se validaron los datos de inicio de sesión.',
-            500,
-            'INTERNAL_ERROR'
-        ));
-        return;
+        throw new Error('La ruta /login requiere el middleware validateLogin.');
     }
-    const result = await loginUser(input);
-    res.status(200).json({ data: result });
+
+    res.status(200).json({ data: await loginUser(input) });
+};
+export const getMe = async (_req: Request, res: Response): Promise<void> => {
+    const auth = res.locals.auth;
+    if (!auth) {
+        throw new Error('La ruta /me requiere el middleware authenticate.');
+    }
+    res.status(200).json({
+        data: { user: await getAuthenticatedUser(auth.userId) }
+    });
 };
