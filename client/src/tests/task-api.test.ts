@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiHttpError, apiRequest } from '../api.js';
-import { deleteTask, listTasks } from '../task-api.js';
-import type { TaskListQuery, TaskListResponse } from '../types.js';
+import { deleteTask, getTask, listTasks } from '../task-api.js';
+import type { Task, TaskListQuery, TaskListResponse } from '../types.js';
 const query: TaskListQuery = {
     page: 2,
     limit: 5,
@@ -39,6 +39,53 @@ describe('cliente HTTP de tareas', () => {
         expect(String(url)).toContain('status=pending');
         expect(String(url)).toContain('search=documentar');
         expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer token-de-prueba');
+    });
+    it('getTask consulta /api/tasks/:id y conserva el token Bearer', async () => {
+        const task: Task = {
+            id: '67112bfe47963b2be12c43b1',
+            title: 'Tarea de detalle',
+            status: 'pending',
+            createdAt: '2026-11-21T00:00:00.000Z',
+            updatedAt: '2026-11-21T00:00:00.000Z'
+        };
+        const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
+        fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ data: task }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        }));
+        vi.stubGlobal('fetch', fetchMock);
+        await expect(getTask(task.id, 'token-de-prueba')).resolves.toEqual({ data: task });
+        const [url, init] = fetchMock.mock.calls[0] ?? [];
+        expect(String(url)).toContain(`/api/tasks/${task.id}`);
+        expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer token-de-prueba');
+    });
+    it('getTask expone el 401 de la API para mostrar la vista no autorizada', async () => {
+        const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
+        fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
+            error: { code: 'AUTHENTICATION_REQUIRED', message: 'Token inválido.' }
+        }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        }));
+        vi.stubGlobal('fetch', fetchMock);
+        await expect(getTask('67112bfe47963b2be12c43b1', 'token')).rejects.toMatchObject({
+            status: 401,
+            code: 'AUTHENTICATION_REQUIRED'
+        });
+    });
+    it('getTask expone el 404 de la API para mostrar la vista de tarea ausente', async () => {
+        const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();
+        fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
+            error: { code: 'TASK_NOT_FOUND', message: 'No existe la tarea.' }
+        }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' }
+        }));
+        vi.stubGlobal('fetch', fetchMock);
+        await expect(getTask('67112bfe47963b2be12c43b1', 'token')).rejects.toMatchObject({
+            status: 404,
+            code: 'TASK_NOT_FOUND'
+        });
     });
     it('acepta una eliminación 204 sin intentar analizar JSON', async () => {
         const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>();

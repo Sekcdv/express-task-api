@@ -207,6 +207,42 @@ hr {
     justify-content: center;
 }
 
+.button-link {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #1f4f7a;
+    border-radius: 0.55rem;
+    padding: 0.7rem 1rem;
+    color: #fff;
+    background: #1f4f7a;
+    text-decoration: none;
+}
+
+.button-link.secondary {
+    color: #1f4f7a;
+    background: #fff;
+}
+
+.task-detail__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.task-detail__grid div {
+    min-width: 0;
+}
+
+.task-detail__grid dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.detail-back {
+    margin-top: 1rem;
+}
+
 .status-message {
     min-height: 1.5rem;
     color: #455568;
@@ -232,7 +268,8 @@ hr {
 
     .inline-form,
     .filter-grid,
-    .task-card {
+    .task-card,
+    .task-detail__grid {
         grid-template-columns: 1fr;
     }
 

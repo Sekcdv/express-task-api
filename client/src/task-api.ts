@@ -43,6 +43,12 @@ export const listTasks = (
     if (query.search.trim()) parameters.set('search', query.search.trim());
     return apiRequest(`/api/tasks?${parameters.toString()}`, {}, token);
 };
+export const getTask = (
+    id: string,
+    token: string,
+    signal?: AbortSignal
+): Promise<ApiEnvelope<Task>> =>
+    apiRequest(`/api/tasks/${encodeURIComponent(id)}`, { signal }, token);
 export const createTask = (
     input: CreateTaskInput,
     token: string

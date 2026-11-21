@@ -41,6 +41,7 @@ const expectJson = async (path) => {
 };
 await expectHtml('/');
 await expectHtml('/tasks');
+await expectHtml('/tasks/67112bfe47963b2be12c43b1');
 await expectJson('/health');
 await expectJson('/health/database');
 console.log('Prueba de humo aprobada.');
