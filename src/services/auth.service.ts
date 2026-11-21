@@ -54,12 +54,12 @@ export const loginUser = async (input: LoginInput): Promise<LoginResult> => {
         throw new AppError('El correo o la contraseña son incorrectos.', 401, 'INVALID_CREDENTIALS');
     }
     const user = toUser(document);
-    const config = loadEnvironment();
+    const config = loadEnvironment;
     return {
         user,
         accessToken: await createAccessToken({ userId: user.id, role: user.role }),
         tokenType: 'Bearer',
-        expiresIn: config.jwtExpiresIn
+        expiresIn: config.JWT_EXPIRES_IN
     };
 };
 export const getAuthenticatedUser = async (userId: string): Promise<User> => {

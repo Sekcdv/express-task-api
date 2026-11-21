@@ -3,10 +3,10 @@ import { rateLimit } from 'express-rate-limit';
 import helmet from 'helmet';
 import { loadEnvironment } from '../config/env.js';
 import { AppError } from '../errors/app-error.js';
-const config = loadEnvironment();
+const config = loadEnvironment;
 const corsOptions: CorsOptions = {
     origin(origin, callback) {
-        if (!origin || origin === config.corsOrigin) {
+        if (!origin || origin === config.CORS_ORIGIN) {
             callback(null, true);
             return;
         }
@@ -23,8 +23,8 @@ export const documentationSecurityHeaders = helmet({
 });
 export const corsPolicy = cors(corsOptions);
 export const authRateLimiter = rateLimit({
-    windowMs: config.authRateLimitWindowMs,
-    limit: config.authRateLimitMax,
+    windowMs: config.AUTH_RATE_LIMIT_WINDOW_MS,
+    limit: config.AUTH_RATE_LIMIT_MAX,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     handler(_req, _res, next) {

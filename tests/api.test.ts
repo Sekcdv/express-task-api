@@ -16,7 +16,8 @@ const authServiceDoubles = vi.hoisted(() => ({
 }));
 const taskServiceDoubles = vi.hoisted(() => ({
     listTasks: vi.fn<(query: TaskListQuery) => Promise<TaskListResult>>(),
-    findTaskById: vi.fn<(id: string) => Promise<Task>>(), createTask: vi.fn<(title: string) => Promise<Task>>(),
+    findTaskById: vi.fn<(id: string) => Promise<Task>>(),
+    createTask: vi.fn<(title: string, priority?: Task['priority']) => Promise<Task>>(),
     updateTask: vi.fn<(id: string, changes: object) => Promise<Task>>(),
     completeTask: vi.fn<(id: string) => Promise<Task>>(),
     deleteTask: vi.fn<(id: string) => Promise<void>>()
@@ -46,14 +47,8 @@ let userToken = '';
 let adminToken = '';
 beforeEach(async () => {
     vi.clearAllMocks();
-    userToken = await createAccessToken({
-        userId: user.id,
-        role: user.role
-    });
-    adminToken = await createAccessToken({
-        userId: admin.id,
-        role: admin.role
-    });
+    userToken = await createAccessToken({ userId: user.id, role: user.role });
+    adminToken = await createAccessToken({ userId: admin.id, role: admin.role });
     authServiceDoubles.registerUser.mockResolvedValue({ user });
     authServiceDoubles.loginUser.mockResolvedValue({
         user,
@@ -83,11 +78,15 @@ describe('documentación y controles HTTP', () => {
     it('publica OpenAPI, Swagger UI y encabezados de seguridad', async () => {
         const health = await request(app).get('/health').expect(200);
         expect(health.body.data.status).toBe('up');
+        expect(health.body.data.version).toBe('1.0.0-test');
+        expect(health.body.data.environment).toBe('test');
         expect(health.headers['x-powered-by']).toBeUndefined();
         expect(health.headers['x-content-type-options']).toBe('nosniff');
         expect(typeof health.headers['x-request-id']).toBe('string');
         const specification = await request(app).get('/api-docs.json').expect(200);
         expect(specification.body.openapi).toBe('3.1.0');
+        expect(specification.body.info.version).toBe('1.0.0-test');
+        expect(specification.body.servers[0].url).toBe('http://localhost:3000');
         expect(specification.body.paths['/api/auth/me']).toBeDefined();
         expect(specification.body.components.securitySchemes.bearerAuth.scheme).toBe('bearer');
         const swagger = await request(app).get('/api-docs/').expect(200);
@@ -141,8 +140,7 @@ describe('CRUD protegido y autorización', () => {
             limit: 10,
             status: 'pending',
             search: 'pruebas',
-            sortBy: 'title',
-            order: 'asc'
+            sortBy: 'title', order: 'asc'
         });
         const created = await request(app)
             .post('/api/tasks')
@@ -150,7 +148,7 @@ describe('CRUD protegido y autorización', () => {
             .send({ title: task.title })
             .expect(201);
         expect(created.body.data.title).toBe(task.title);
-        expect(taskServiceDoubles.createTask).toHaveBeenCalledWith(task.title);
+        expect(taskServiceDoubles.createTask).toHaveBeenCalledWith(task.title, undefined);
     });
     it('mantiene 403 para user y 204 para admin al eliminar', async () => {
         const forbidden = await request(app)

@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "tsx watch src/server.ts",
-		"check": "tsc --noEmit && tsc -p tsconfig.json --noEmit",
+		"check": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit",
 		"build": "tsc",
 		"start": "node dist/server.js",
 		"role:set": "tsx src/scripts/set-user-role.ts",
@@ -14,7 +14,9 @@
 		"client:dev": "pnpm --dir client dev",
 		"client:check": "pnpm --dir client check",
 		"client:build": "pnpm --dir client build",
-		"verify": "pnpm check && pnpm test && pnpm build && pnpm client:check && pnpm client:build"
+		"client:test": "pnpm --dir client test",
+		"smoke:release": "node scripts/smoke-release.mjs",
+		"verify": "pnpm check && pnpm test && pnpm build && pnpm client:check && pnpm client:test && pnpm client:build"
 	},
 	"dependencies": {
 		"bcryptjs": "3.0.3",
@@ -39,6 +41,7 @@
 		"vitest": "5.0.4"
 	},
 	"engines": {
-		"node": ">=20.19.0"
-	}
+		"node": ">=20.19.0 <25"
+	},
+	"packageManager": "pnpm@11.25.0"
 }

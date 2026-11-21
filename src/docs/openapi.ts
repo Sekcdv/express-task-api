@@ -1,15 +1,16 @@
+import { loadEnvironment } from '../config/env.js';
 export const openApiDocument: Record<string, unknown> = {
     openapi: '3.1.0',
     info: {
         title: 'Task API Express',
-        version: '1.0.0',
+        version: loadEnvironment.APP_VERSION,
         description:
             'API REST para gestionar tareas con autenticación JWT y autorización por roles.'
     },
     servers: [
         {
-            url: 'http://localhost:3000',
-            description: 'Entorno local'
+            url: loadEnvironment.PUBLIC_API_URL,
+            description: loadEnvironment.NODE_ENV === 'production' ? 'Entorno de producción' : 'Entorno local'
         }
     ],
     tags: [
@@ -33,8 +34,15 @@ export const openApiDocument: Record<string, unknown> = {
                                     properties: {
                                         data: {
                                             type: 'object',
-                                            required: ['status'],
-                                            properties: { status: { type: 'string', example: 'up' } }
+                                            required: ['status', 'version', 'environment'],
+                                            properties: {
+                                                status: { type: 'string', example: 'up' },
+                                                version: { type: 'string', example: '1.0.0' },
+                                                environment: {
+                                                    type: 'string',
+                                                    enum: ['development', 'test', 'production']
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -168,8 +176,7 @@ export const openApiDocument: Record<string, unknown> = {
                 summary: 'Listar tareas con paginación, filtros y ordenamiento',
                 security: [{ bearerAuth: [] }],
                 parameters: [
-                    { $ref: '#/components/parameters/Page' },
-                    { $ref: '#/components/parameters/Limit' },
+                    { $ref: '#/components/parameters/Page' }, { $ref: '#/components/parameters/Limit' },
                     { $ref: '#/components/parameters/Status' },
                     { $ref: '#/components/parameters/Search' },
                     { $ref: '#/components/parameters/SortBy' },
@@ -208,7 +215,8 @@ export const openApiDocument: Record<string, unknown> = {
                                 schema: { $ref: '#/components/schemas/TaskEnvelope' }
                             }
                         }
-                    }, '401': { $ref: '#/components/responses/Unauthorized' },
+                    },
+                    '401': { $ref: '#/components/responses/Unauthorized' },
                     '415': { $ref: '#/components/responses/UnsupportedMediaType' },
                     '422': { $ref: '#/components/responses/ValidationError' }
                 }
@@ -290,7 +298,8 @@ export const openApiDocument: Record<string, unknown> = {
                         }
                     },
                     '401': { $ref: '#/components/responses/Unauthorized' },
-                    '404': { $ref: '#/components/responses/NotFound' }, '422': { $ref: '#/components/responses/ValidationError' }
+                    '404': { $ref: '#/components/responses/NotFound' },
+                    '422': { $ref: '#/components/responses/ValidationError' }
                 }
             }
         }
@@ -332,8 +341,7 @@ export const openApiDocument: Record<string, unknown> = {
             },
             SortBy: {
                 name: 'sortBy',
-                in: 'query',
-                schema: {
+                in: 'query', schema: {
                     type: 'string',
                     enum: ['title', 'status', 'createdAt', 'updatedAt'],
                     default: 'createdAt'
@@ -372,7 +380,8 @@ export const openApiDocument: Record<string, unknown> = {
             RegisterInput: {
                 type: 'object',
                 required: ['name', 'email', 'password'],
-                additionalProperties: false, properties: {
+                additionalProperties: false,
+                properties: {
                     name: { type: 'string', minLength: 2, maxLength: 80 },
                     email: { type: 'string', format: 'email', maxLength: 254 },
                     password: { type: 'string', minLength: 15, format: 'password' }
@@ -414,8 +423,7 @@ export const openApiDocument: Record<string, unknown> = {
             },
             ApiError: {
                 type: 'object',
-                required: ['code', 'message'],
-                properties: {
+                required: ['code', 'message'], properties: {
                     code: { type: 'string', example: 'VALIDATION_ERROR' },
                     message: { type: 'string', example: 'La solicitud contiene datos inválidos.' },
                     details: {
