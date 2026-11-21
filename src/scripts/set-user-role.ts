@@ -10,10 +10,10 @@ const run = async (): Promise<void> => {
         throw new Error('Uso: pnpm role:set <correo> <user|admin>');
     }
 
-    const env = loadEnvironment();
+    const env = loadEnvironment;
     await connectDatabase({
-        uri: env.mongodbUri,
-        dbName: env.mongodbDbName
+        uri: env.MONGODB_URI,
+        dbName: env.MONGODB_DB_NAME
     });
     const user = await setUserRoleByEmail(email, role);
     if (!user) {

@@ -1,81 +1,37 @@
-import 'dotenv/config';
-import dns from 'node:dns';
 import type { Server } from 'node:http';
+import { app } from './app.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
 import { loadEnvironment } from './config/env.js';
-
-dns.setServers(['8.8.8.8', '1.1.1.1']);
-
-let httpServer: Server | undefined;
-let isShuttingDown = false;
-
-const closeHttpServer = (server: Server): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        server.close((error) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-            resolve();
-        });
-        server.closeIdleConnections();
-    });
-};
-
-const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
-    if (isShuttingDown) {
-        return;
-    }
-    isShuttingDown = true;
-    console.log(`Señal ${signal} recibida. Cerrando la API...`);
-
-    try {
-        if (httpServer) {
-            await closeHttpServer(httpServer);
-            console.log('Servidor HTTP cerrado.');
-        }
-        await disconnectDatabase();
-    } catch {
-        console.error('No fue posible completar el cierre ordenado.');
-        process.exitCode = 1;
-    }
-};
-
-const startServer = async (): Promise<void> => {
-    let env: ReturnType<typeof loadEnvironment>;
-    try {
-        env = loadEnvironment();
-    } catch (error: unknown) {
-        const message = error instanceof Error
-            ? error.message
-            : 'Error de configuración desconocido.';
-        console.error(`Configuración de inicio inválida: ${message}`);
-        process.exitCode = 1;
-        return;
-    }
-
+let server: Server | undefined;
+const start = async (): Promise<void> => {
     try {
         await connectDatabase({
-            uri: env.mongodbUri,
-            dbName: env.mongodbDbName
+            uri: loadEnvironment.MONGODB_URI,
+            dbName: loadEnvironment.MONGODB_DB_NAME
         });
-        const { app } = await import('./app.js');
-        httpServer = app.listen(env.port, () => {
-            console.log(`API disponible en http://localhost:${env.port}`);
-        });
-
-        process.on('SIGINT', () => {
-            void shutdown('SIGINT');
-        });
-        process.on('SIGTERM', () => {
-            void shutdown('SIGTERM');
+        server = app.listen(loadEnvironment.PORT, '0.0.0.0', () => {
+            console.log(`API ${loadEnvironment.APP_VERSION} disponible en ${loadEnvironment.PUBLIC_API_URL}`);
         });
     } catch {
-        console.error(
-            'No fue posible iniciar la API. Revise MongoDB y la configuración.'
-        );
+        console.error('No fue posible iniciar la API. Revisa la configuración y la conexión.');
         process.exitCode = 1;
     }
 };
-
-void startServer();
+const shutdown = async (signal: string): Promise<void> => {
+    console.log(`Se recibió ${signal}. Cerrando la API.`);
+    if (server) {
+        await new Promise<void>((resolve, reject) => {
+            server?.close((error) => error ? reject(error) : resolve());
+        });
+    }
+    await disconnectDatabase();
+};
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+    process.once(signal, () => {
+        void shutdown(signal).catch(() => {
+            console.error('No fue posible cerrar la API correctamente.');
+            process.exitCode = 1;
+        });
+    });
+}
+await start();

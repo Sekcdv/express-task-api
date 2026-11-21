@@ -7,15 +7,15 @@ import type { AccessTokenSubject } from '../types/auth.js';
 export const createAccessToken = async (
     subject: AccessTokenSubject
 ): Promise<string> => {
-    const env = loadEnvironment();
+    const env = loadEnvironment;
     return new SignJWT({ role: subject.role })
         .setProtectedHeader({ alg: 'HS256' })
         .setSubject(subject.userId)
-        .setIssuer(env.jwtIssuer)
-        .setAudience(env.jwtAudience)
+        .setIssuer(env.JWT_ISSUER)
+        .setAudience(env.JWT_AUDIENCE)
         .setIssuedAt()
-        .setExpirationTime(env.jwtExpiresIn)
-        .sign(new TextEncoder().encode(env.jwtSecret));
+        .setExpirationTime(env.JWT_EXPIRES_IN)
+        .sign(new TextEncoder().encode(env.JWT_SECRET));
 };
 
 
@@ -23,16 +23,16 @@ export const createAccessToken = async (
 export const verifyAccessToken = async (
     token: string
 ): Promise<AccessTokenSubject> => {
-    const env = loadEnvironment();
+    const env = loadEnvironment;
     let payload: JWTPayload;
     try {
         ({ payload } = await jwtVerify(
             token,
-            new TextEncoder().encode(env.jwtSecret),
+            new TextEncoder().encode(env.JWT_SECRET),
             {
                 algorithms: ['HS256'],
-                issuer: env.jwtIssuer,
-                audience: env.jwtAudience
+                issuer: env.JWT_ISSUER,
+                audience: env.JWT_AUDIENCE
             }
         ));
     } catch (error: unknown) {

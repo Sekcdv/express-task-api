@@ -8,7 +8,7 @@
 | Tipo | Método y ruta | Datos | Esperado | Obtenido | requestId | Resultado |
 |---|---|---|---|---|---|---|
 | Positiva | GET /health | No aplica | 200 | | | |
-| Positiva | GET /health/database | No aplica | 200 connected | | | |
+| Positiva | GET /health/database | No aplica | 200 up | | | |
 | Regresión | GET /api/tasks | No aplica | 200 | | | |
 | Regresión | POST /api/tasks | title válido | 201 | | | |
 | Negativa | GET /api/tasks/abc | No aplica | 400 INVALID_ID | | | |

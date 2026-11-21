@@ -1,5 +1,6 @@
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
+import { loadEnvironment } from './config/env.js';
 import { openApiDocument } from './docs/openapi.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { notFound } from './middlewares/not-found.middleware.js';
@@ -14,6 +15,7 @@ import { healthRouter } from './routes/health.routes.js';
 import { taskRouter } from './routes/task.routes.js';
 export const app = express();
 app.disable('x-powered-by');
+if (loadEnvironment.TRUST_PROXY_HOPS > 0) app.set('trust proxy', loadEnvironment.TRUST_PROXY_HOPS);
 app.use(requestContext);
 app.get(
     '/api-docs.json',
