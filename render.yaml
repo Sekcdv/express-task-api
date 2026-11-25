@@ -15,7 +15,7 @@ value: production
 - key: APP_VERSION
 value: 1.0.0
 - key: PUBLIC_API_URL
-sync: false
+value: https://task-api-express-reemplaza.onrender.com
 - key: TRUST_PROXY_HOPS
 value: 1
 - key: MONGODB_URI
@@ -31,13 +31,13 @@ value: task-api-express
 - key: JWT_AUDIENCE
 value: task-api-client
 - key: CORS_ORIGIN
-sync: false
+value: https://task-manager-frontend-reemplaza.onrender.com
 - key: AUTH_RATE_LIMIT_WINDOW_MS
 value: 900000
 - key: AUTH_RATE_LIMIT_MAX
 value: 10
 - type: web
-name: task-client-react-reemplaza
+name: task-manager-frontend-reemplaza
 runtime: static
 buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm client:build
 staticPublishPath: ./client/dist
@@ -45,7 +45,7 @@ envVars:
 - key: NODE_VERSION
 value: 24.21.0
 - key: VITE_API_URL
-sync: false
+value: https://task-api-express-reemplaza.onrender.com
 routes:
 - type: rewrite
 source: /*
