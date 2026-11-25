@@ -31,7 +31,7 @@ value: task-api-express
 - key: JWT_AUDIENCE
 value: task-api-client
 - key: CORS_ORIGIN
-value: https://task-manager-frontend-reemplaza.onrender.com
+value: https://task-manager-frontend-reemplaza-t6gi.onrender.com
 - key: AUTH_RATE_LIMIT_WINDOW_MS
 value: 900000
 - key: AUTH_RATE_LIMIT_MAX

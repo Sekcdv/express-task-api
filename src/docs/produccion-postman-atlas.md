@@ -7,7 +7,7 @@ Este documento deja el proyecto apuntando **únicamente a tus propios servicios*
 | Servicio | URL |
 | --- | --- |
 | Backend (API) | `https://task-api-express-reemplaza.onrender.com` |
-| Frontend (React) | `https://task-manager-frontend-reemplaza.onrender.com` |
+| Frontend (React) | `https://task-manager-frontend-reemplaza-t6gi.onrender.com` |
 | Salud de la API | `GET {Backend}/health` |
 | Salud de MongoDB | `GET {Backend}/health/database` |
 | Documentación | `{Backend}/api-docs` y `{Backend}/api-docs.json` |
@@ -124,7 +124,7 @@ El script valida `/health`, `/health/database`, el login, `/api/auth/me` y la li
 | Síntoma | Causa probable |
 | --- | --- |
 | `404` en la URL del backend | El servicio aún no se creó en Render o está durmiendo; espera y vuelve a intentar. |
-| Error de CORS en la consola del navegador | `CORS_ORIGIN` debe ser exactamente `https://task-manager-frontend-reemplaza.onrender.com`. |
+| Error de CORS en la consola del navegador | `CORS_ORIGIN` debe ser exactamente `https://task-manager-frontend-reemplaza-t6gi.onrender.com`. |
 | `401 INVALID_TOKEN` | Token vencido o emitido con otro `JWT_SECRET`; inicia sesión de nuevo. |
 | `403 FORBIDDEN` al borrar | El token fue emitido antes de cambiar el rol; haz un nuevo login. |
 | `/health/database` devuelve `503` | Revisa `MONGODB_URI` y la whitelist IP de Atlas (Render debe poder conectarse desde cualquier IP: `0.0.0.0/0`). |
