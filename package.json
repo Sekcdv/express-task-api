@@ -9,6 +9,7 @@
 		"build": "tsc",
 		"start": "node dist/server.js",
 		"role:set": "tsx src/scripts/set-user-role.ts",
+		"token:inspect": "tsx src/scripts/inspect-token.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"client:dev": "pnpm --dir client dev",
